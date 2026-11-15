@@ -1,32 +1,10 @@
-# Skateboard path planning and control
+# Skateboard path planning
 
-ROS2 simulation package for planning and tracking skateboard trajectories in Gazebo. The package is named **`skate`**.
-
-The obstacle-course example combines occupancy-grid A* planning, iterative path smoothing, and a Stanley steering controller. RViz displays the planned path and the trajectory reconstructed from odometry.
-
-## Code map
-
-| Component | Implementation |
-| --- | --- |
-| Grid planning and smoothing | [scripts/path_planning.py](scripts/path_planning.py) |
-| Stanley path tracking | [scripts/stanley_controller.py](scripts/stanley_controller.py) |
-| Analytic test paths | [scripts/path_generator.py](scripts/path_generator.py) |
-| Odometry visualization and TF | [scripts/odom_to_path.py](scripts/odom_to_path.py), [scripts/odom_tf_broadcaster.py](scripts/odom_tf_broadcaster.py) |
-| Robot model | [description/board](description/board) |
-| Simulation scenes and maps | [worlds](worlds), [maps](maps) |
-| ROS2 controller configuration | [config/controller_config.yaml](config/controller_config.yaml) |
-
-## Environment
-
-Use a ROS2 installation with **Gazebo Classic** and `gazebo_ros` / `gazebo_ros2_control`. These launch files use the Classic interfaces.
-
-Runtime components include ROS2 control and controllers, `robot_state_publisher`, `xacro`, `tf2_ros`, `robot_localization`, and RViz2. The planner uses NumPy, PyYAML, and OpenCV. See [package.xml](package.xml) for declared ROS dependencies; additional runtime dependencies may need to be installed separately in an existing environment.
-
-The repository does not record a fully pinned ROS distribution and simulator environment.
+ROS2 / Gazebo Classic simulation: A* on an occupancy grid, path smoothing and Stanley steering control. ROS package name: `skate`.
 
 ## Build
 
-After sourcing your ROS2 installation, create or use a colcon workspace:
+Source your ROS2 installation first. Requires Gazebo Classic with `gazebo_ros` and `gazebo_ros2_control`, ROS2 controllers, `robot_localization`, RViz2, NumPy, PyYAML and OpenCV.
 
 ```bash
 mkdir -p ~/skate_ws/src
@@ -38,24 +16,21 @@ colcon build --symlink-install --packages-select skate
 source install/setup.bash
 ```
 
-## Run the obstacle-course example
+## Run
 
 ```bash
 ros2 launch skate skate_stanley_control_world_frame.launch.py
 ```
 
-The [launch file](launch/skate_stanley_control_world_frame.launch.py) starts Gazebo, spawns the board near `(-8, -8)`, and configures a path to `(8, 8)` using the included obstacle map. It also starts the controller, odometry/TF nodes, and RViz.
+This starts the obstacle course, planner, controller and RViz. Start/goal coordinates and controller settings are in the [launch file](launch/skate_stanley_control_world_frame.launch.py). Defaults: `(-8, -8)` to `(8, 8)`.
 
-To change the experiment, edit the planner's start/goal and map parameters in that launch file, and the Stanley controller parameters in the same file. The `path_type` argument is not connected to the active planner in this obstacle-course launch.
+The obstacle-course launch uses A*; its `path_type` argument is unused.
 
-For the separate analytic-path setup, see [skate_stanley_control.launch.py](launch/skate_stanley_control.launch.py) and [path_generator.py](scripts/path_generator.py).
+## Code
 
-## Scope
+- [A* and smoothing](scripts/path_planning.py)
+- [Stanley controller](scripts/stanley_controller.py)
+- [Circle, figure-eight and straight test paths](scripts/path_generator.py)
+- [Robot model](description/board), [maps](maps), [worlds](worlds)
 
-This is a simulation research prototype. It does not include a hardware deployment procedure or a benchmark of tracking error and collision rates. Smoothing and tracking should be evaluated against the chosen map and robot geometry before drawing performance conclusions.
-
-## Related work and license
-
-[Quadruped skateboard mounting](https://github.com/dancher00/quadruped-skateboard-mounting) · [Skateboarding demonstrations](https://github.com/dancher00/quadrupedal-skateboarding)
-
-See [LICENSE.md](LICENSE.md) and source-file notices.
+[Apache 2.0](LICENSE.md)
